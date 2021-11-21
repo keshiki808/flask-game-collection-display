@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<form action="/collection" method="post">
+    <input name ="game_name" autocomplete="off" autofocus="game_name" placeholder="Name" type="text">
+    <input type="submit">
+</form>
+
+{% endblock %}
