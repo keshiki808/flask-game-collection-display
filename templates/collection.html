@@ -2,6 +2,10 @@
 
 {% block body %}
 
+Collection
+{% for game in game_collection %}
+{{ game[1] }} {{ game[2] }}
+{% endfor %}
 
 
 {% endblock %}
