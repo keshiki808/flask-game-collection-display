@@ -12,7 +12,6 @@ app.config['UPLOAD_PATH'] = 'static/images'
 conn = sqlite3.connect("games_test.db", check_same_thread=False)
 
 SCORES =["1","2","3","4","5"]
-# SCORES =[1,2,3,4,5]
 
 
 @app.route("/")
@@ -37,22 +36,18 @@ def logout():
 
 @app.route("/upload")
 def upload():
-    return render_template("upload.html",scores=SCORES)
+    # return render_template("upload.html",scores=SCORES)
+    return render_template("upload.html")
 
 
 @app.route("/submitted", methods=["POST"])
 def submission():
-    # if not request.form.get("game_name") or not request.form.get("score") not in SCORES:
-    #     return render_template("error.html")
-    # return render_template("submitted.html", game_name=request.form.get("game_name"))
     game_name = request.form.get("game_name")
     if not game_name:
         return render_template("error.html", error_message="You must enter a game name")
-    score = request.form.get('score')
+    score = request.form.get('scoreRating')
     if not score:
         return render_template("error.html", error_message="You must enter a score")
-    if score not in SCORES:
-        return render_template("error.html", error_message="Score must not be empty")
     with closing(conn.cursor()) as c:
         query = f"INSERT into games(game_name, score_rating) VALUES(?, ?)"
         c.execute(query, (game_name, score))

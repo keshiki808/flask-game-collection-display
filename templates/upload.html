@@ -4,14 +4,28 @@
 <h1>Upload a new game</h1>
 <form action="/submitted" method="post">
     <input name ="game_name" autocomplete="off" autofocus="game_name" placeholder="Game Name" type="text">
-    <select name="score">
-        <option disabled selected value="">Rating</option>
-        {% for score in scores %}
-            <option value="{{ score }}">{{ score }}</option>
-        {% endfor %}
-    </select>
+
+    <div id="score"></div>
+
     <input type="submit">
 
 </form>
 
 {% endblock %}
+
+{% block javascript %}
+<script>
+    console.log($('h1'))
+    $(function(){
+    $("#score").rates({
+                shadeColor: 'rates-blue',
+                shapeCount: 5,
+                shape: 'black-star',
+                shapeHeight: "65px",
+                imagesFolderLocation: 'static/'
+
+            })
+    })
+</script>
+{% endblock %}
+
