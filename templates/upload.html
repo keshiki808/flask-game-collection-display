@@ -1,19 +1,33 @@
 {% extends "layout.html" %}
-
+{% block stylesheet %}
+<link rel="stylesheet" href="static/css/rates.css">
+{% endblock stylesheet %}
 {% block body %}
 <h1>Upload a new game</h1>
+
 <form action="/submitted" method="post">
-    <input name ="game_name" autocomplete="off" autofocus="game_name" placeholder="Game Name" type="text">
-
+    {{form.hidden_tag()}}
+    {{form.game_name.label(class="form-label")}}
+    {{form.game_name(class="form-control")}}
+    {{form.game_developer.label(class="form-label")}}
+    {{form.game_developer(class="form-control")}}
+    {{form.release_year.label(class="form-label")}}
+    {{form.release_year(class="form-control")}}
+    {{form.image_file.label(class="form-label")}}
+    {{form.image_file(class="form-control")}}
+    {{form.game_description.label(class="form-label")}}
+    {{form.game_description(class="form-control")}}
+    <div class="form-label">Choose a score rating:</div>
     <div id="score"></div>
-
-    <input type="submit">
-
+    <br/>
+    {{form.submit(class="btn btn-secondary")}}
 </form>
+
 
 {% endblock %}
 
 {% block javascript %}
+<script src="static/js/jquery-rates.js"></script>
 <script>
     console.log($('h1'))
     $(function(){
