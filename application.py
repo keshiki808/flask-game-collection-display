@@ -23,8 +23,9 @@ class GameForm(FlaskForm):
     game_developer = StringField("Enter the developer name:", validators=[DataRequired()])
     console = StringField("Enter the console name:", validators=[DataRequired()])
     release_year = IntegerField("Enter a release year:", validators=[DataRequired()])
-    image_file = FileField("Upload the game cover: ")
     game_description = StringField("Enter a brief description of the game: ", validators=[DataRequired()])
+    image_file = FileField("Upload the game cover: ")
+    image_caption = StringField("Enter a caption for the image: ", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 
