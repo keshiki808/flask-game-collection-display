@@ -4,27 +4,41 @@
 {% endblock stylesheet %}
 {% block body %}
 <h1>Upload a new game</h1>
+<div class="col-md-7">
 
-<form action="/submitted" method="post">
+<form id ="collection-item-submission" action="/submitted" method="post">
+
     {{form.hidden_tag()}}
     {{form.game_name.label(class="form-label")}}
     {{form.game_name(class="form-control")}}
+    <span>*</span><br><br>
     {{form.game_developer.label(class="form-label")}}
     {{form.game_developer(class="form-control")}}
+    <span>*</span><br><br>
+    {{form.console.label(class="form-label")}}
+    {{form.console(class="form-control")}}
+    <span>*</span><br><br>
     {{form.release_year.label(class="form-label")}}
     {{form.release_year(class="form-control")}}
+    <span>*</span><br><br>
     {{form.game_description.label(class="form-label")}}
     {{form.game_description(class="form-control")}}
+    <span>*</span><br><br>
     {{form.image_file.label(class="form-label")}}
     {{form.image_file(class="form-control")}}
+    <span>*</span><br><br>
     {{form.image_caption.label(class="form-label")}}
     {{form.image_caption(class="form-control")}}
+    <span>*</span><br><br>
 
     <div class="form-label">Choose a score rating:</div>
     <div id="score"></div>
-    <br/>
+    <span id="sr-span">*</span><br>
+
+
     {{form.submit(class="btn btn-secondary")}}
 </form>
+    </div>
 
 
 {% endblock %}
@@ -44,5 +58,6 @@
             })
     })
 </script>
+<script src="static/js/form.js"></script>
 {% endblock %}
 

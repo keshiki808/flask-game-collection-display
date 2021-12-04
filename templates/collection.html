@@ -4,7 +4,8 @@
 
 Collection
 {% for game in game_collection %}
-{{ game[1] }} {{ game[2] }}
+{{ game['image_filename'] }} {{ game['image_caption'] }} {{ game['game_name'] }} {{ game['console'] }}
+{{ game['release_year'] }} {{ game['game_description'] }} {{ game['developer'] }} {{ game['score_rating'] }}
 {% endfor %}
 
 
