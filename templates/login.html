@@ -2,9 +2,14 @@
 
 {% block body %}
 
-<form action="/login" method="post">
-<input autocomplete="off" autofocus name="login_form" placeholder="Name" type="text">
-<input type="submit">
+<form method="POST" action="">
+    {{form.hidden_tag()}}
+    {{form.email.label(class="form-label")}}
+    {{form.email(class="form-control")}}
+    {{form.password.label(class="form-label")}}
+    {{form.password(class="form-control")}}
+    {{form.submit(class="btn btn-secondary")}}
+
 </form>
 
 

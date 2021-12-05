@@ -5,6 +5,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, FileField, PasswordField
 from wtforms.validators import DataRequired
 from flask_session import Session
+import flask_login
+
 import os
 
 app = Flask(__name__)
@@ -17,7 +19,70 @@ app.config['UPLOAD_PATH'] = 'static/images'
 conn = sqlite3.connect("games.db", check_same_thread=False)
 conn.row_factory = sqlite3.Row
 
-SCORES =["1","2","3","4","5"]
+login_manager = flask_login.LoginManager()
+
+login_manager.init_app(app)
+
+users = {'ericstock@gmail.com': {'password': 'terminator2fan'}}
+
+class User(flask_login.UserMixin):
+    pass
+
+
+@login_manager.user_loader
+def user_loader(email):
+    if email not in users:
+        return
+    user = User()
+    user.id = email
+    return user
+
+
+@login_manager.request_loader
+def request_loader(request):
+    email = request.form.get('email')
+    if email not in users:
+        return
+
+    user = User()
+    user.id = email
+    return user
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return '''
+               <form action='login' method='POST'>
+                <input type='text' name='email' id='email' placeholder='email'/>
+                <input type='password' name='password' id='password' placeholder='password'/>
+                <input type='submit' name='submit'/>
+               </form>
+               '''
+
+    email = request.form['email']
+    if request.form['password'] == users[email]['password']:
+        user = User()
+        user.id = email
+        flask_login.login_user(user)
+        return redirect("/upload")
+
+    return 'Bad login'
+
+
+@app.route('/protected')
+@flask_login.login_required
+def protected():
+    return 'Logged in as: ' + flask_login.current_user.id
+
+@app.route('/logout')
+def logout():
+    flask_login.logout_user()
+    return 'Logged out'
+
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return 'Unauthorized'
+
 
 class GameForm(FlaskForm):
     game_name = StringField("Enter the game name:", render_kw={'style': 'width: 100%'})
@@ -51,20 +116,22 @@ def index():
         return redirect("/login")
     return render_template("index.html")
 
-@app.route("/login", methods=["GET","POST"])
-def login():
-    form = LoginForm()
-    if request.method == "POST":
-        session["name"] = request.form.get("name")
-        return redirect("/")
-    return render_template("login.html", login_form=form)
+# @app.route("/login", methods=["GET","POST"])
+# def login():
+#     form = LoginForm()
+#     if request.method == "POST":
+#         if request.form.get("email").lower() == "ericstock@gmail.com" and request.form.get("password") == "terminator2fan":
+#             session["email"] = request.form.get("email")
+#             return redirect("/")
+#     return render_template("login.html", form=form)
 
-@app.route("/logout")
-def logout():
-    session["name"] = None
-    return redirect("/")
+# @app.route("/logout")
+# def logout():
+#     session["name"] = None
+#     return redirect("/")
 
 @app.route("/upload")
+@flask_login.login_required
 def upload():
     name = None
     form = GameForm()
@@ -81,6 +148,7 @@ def upload():
 
 
 @app.route("/submitted", methods=["GET","POST"])
+@flask_login.login_required
 def submission():
     game_name = request.form.get("game_name")
     game_developer = request.form.get("game_developer")
@@ -102,6 +170,7 @@ def submission():
     return redirect("/collection")
 
 @app.route("/collection")
+@flask_login.login_required
 def collection():
     with closing(conn.cursor()) as c:
         query = f"SELECT * from games"
