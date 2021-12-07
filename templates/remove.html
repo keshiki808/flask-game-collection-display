@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block body %}
+        <div class = "text-center">
+        <main role="main" class="inner cover ">
+                <h1 class="cover-heading">Remove a game from the collection</h1>
+                <p class="lead">Here you can remove a game from the collection</p>
+                <form id ="remove-game-form" action="#" method="post">
+                            {{form.hidden_tag()}}
+                            {{form.game_select.label(class="form-label")}}
+                            {{form.game_select(class="form-control")}}
+                            {{form.submit(class="btn btn-secondary")}}
+                </form>
+        </main>
+        </div>
+{% endblock %}

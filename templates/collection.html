@@ -3,10 +3,37 @@
 {% block body %}
 
 Collection
+{% if game_collection|length > 0%}
+<div class="card-group">
+  <div class="row row">
 {% for game in game_collection %}
-{{ game['image_filename'] }} {{ game['image_caption'] }} {{ game['game_name'] }} {{ game['console'] }}
-{{ game['release_year'] }} {{ game['game_description'] }} {{ game['developer'] }} {{ game['score_rating'] }}
+<div class = 'col'>
+<div class="card h-100" style="width: 28rem;">
+  <a href="static/image_uploads/{{ game['image_filename'] }}" data-lightbox="{{ game['image_filename'] }}"><img src="static/image_uploads/{{ game['image_filename'] }}"  class="card-img-top" alt="{{ game['image_caption'] }}"></a>
+  <div class="card-body" >
+    <h5 class="card-title">{{ game['game_name'] }}</h5>
+    <p class="card-text">{{ game['game_description'] }}.</p>
+  </div>
+  <ul class="list-group list-group-flush">
+      <li class="list-group-item">Developer: {{ game['developer'] }}</li>
+    <li class="list-group-item">Platform: {{ game['console'] }}</li>
+    <li class="list-group-item">Release year: {{ game['release_year'] }}</li>
+    <li class="list-group-item">Rating: {{ game['score_rating'] }}</li>
+  </ul>
+</div>
+  </div>
+
 {% endfor %}
+    </div>
+</div>
+{% else %}
+<p>The collection is empty</p>
+{% endif %}
 
 
+
+{% endblock %}
+
+{% block javascript %}
+<script src="static/js/lightbox.js"></script>
 {% endblock %}

@@ -2,12 +2,10 @@ import sqlite3
 from contextlib import closing
 from flask import Flask, render_template, redirect, request, abort, session, flash, url_for
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField, FileField, PasswordField
-from wtforms.validators import DataRequired
+from wtforms import StringField, SubmitField, IntegerField, FileField, PasswordField, SelectField
+from wtforms.validators import DataRequired, Length
 from flask_session import Session
 import flask_login
-
-
 import os
 
 app = Flask(__name__)
@@ -16,14 +14,12 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 Session(app)
-app.config['UPLOAD_PATH'] = 'static/images'
+app.config['UPLOAD_PATH'] = 'static/image_uploads'
 conn = sqlite3.connect("games.db", check_same_thread=False)
 conn.row_factory = sqlite3.Row
 
 login_manager = flask_login.LoginManager()
-
 login_manager.init_app(app)
-
 login_manager.login_view = 'login'
 
 users = {'test': {'password': '123'}}
@@ -52,6 +48,31 @@ def request_loader(request):
     user.id = email
     return user
 
+
+@app.route('/remove', methods=['GET', 'POST'])
+@flask_login.login_required
+def remove():
+    form = RemoveForm()
+    if request.method == "POST":
+        game = request.form.get("game_select")
+        if game == None:
+            flash('No game was removed', 'danger')
+        else:
+            with closing(conn.cursor()) as c:
+                query_filename = f"SELECT image_filename from games where game_name = ?"
+                c.execute(query_filename, (game,))
+                file_name = c.fetchone()
+                try:
+                    os.remove(os.path.join(app.config['UPLOAD_PATH'], file_name[0]))
+                    flash('Game image deleted from server', 'success')
+                except Exception:
+                    flash('Could not delete file', 'danger')
+                query_delete = f"DELETE from games where game_name = ?"
+                c.execute(query_delete, (game,))
+                conn.commit()
+                flash('Game removed successfully from database and collection', 'success')
+                return redirect(url_for('remove'))
+    return render_template('remove.html', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -95,7 +116,7 @@ def logout():
 
 
 class GameForm(FlaskForm):
-    game_name = StringField("Enter the game name:", render_kw={'style': 'width: 100%'})
+    game_name = StringField("Enter the game name:", [Length(min=1)])
     game_developer = StringField("Enter the developer name:")
     console = StringField("Enter the console name:")
     release_year = IntegerField("Enter a release year:")
@@ -109,58 +130,29 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password:')
     submit = SubmitField('Login')
 
-
-    # game_name = StringField("Enter the game name:", validators=[DataRequired()],  render_kw={'style': 'width: 100%'})
-    # game_developer = StringField("Enter the developer name:", validators=[DataRequired()])
-    # console = StringField("Enter the console name:", validators=[DataRequired()])
-    # release_year = IntegerField("Enter a release year:", validators=[DataRequired()])
-    # game_description = StringField("Enter a brief description of the game: ", validators=[DataRequired()])
-    # image_file = FileField("Upload the game cover: ")
-    # image_caption = StringField("Enter a caption for the image: ", validators=[DataRequired()])
-    # submit = SubmitField("Submit")
-
-
-# @app.route("/")
-# def index():
-#     if not session.get("name"):
-#         return redirect("/login")
-#     return render_template("index.html")
+class RemoveForm(FlaskForm):
+    game_select = SelectField("Choose a game to remove:")
+    submit = SubmitField("Submit")
+    def __init__(self, *args, **kwargs):
+        super(RemoveForm, self).__init__(*args, **kwargs)
+        with closing(conn.cursor()) as c:
+            query = f"SELECT game_name from games"
+            c.execute(query)
+            game_names = c.fetchall()
+        self.game_select.choices = [(name["game_name"],name["game_name"]) for name in game_names]
 
 @app.route("/")
 @flask_login.login_required
 def index():
     return render_template("index.html")
 
-# @app.route("/login", methods=["GET","POST"])
-# def login():
-#     form = LoginForm()
-#     if request.method == "POST":
-#         if request.form.get("email").lower() == "ericstock@gmail.com" and request.form.get("password") == "terminator2fan":
-#             session["email"] = request.form.get("email")
-#             return redirect("/")
-#     return render_template("login.html", form=form)
-
-# @app.route("/logout")
-# def logout():
-#     session["name"] = None
-#     return redirect("/")
-
 @app.route("/upload")
 @flask_login.login_required
 def upload():
-    name = None
     form = GameForm()
     if form.validate_on_submit():
-        name = form.name.data
         form.name.data= ''
-    return render_template("upload.html", name=name, form=form)
-
-# @app.route("/upload")
-# def upload():
-#     form = GameForm()
-#     return render_template("upload.html", form=form)
-
-
+    return render_template("upload.html", form=form)
 
 @app.route("/submitted", methods=["GET","POST"])
 @flask_login.login_required
@@ -170,19 +162,18 @@ def submission():
     console = request.form.get("console")
     release_year = request.form.get("release_year")
     game_description = request.form.get("game_description")
-    image_file = request.form.get("image_file")
     image_caption = request.form.get("image_caption")
     score = request.form.get("scoreRating")
-    # if not game_name:
-    #     return render_template("error.html", error_message="You must enter a game name")
-    # score = request.form.get("scoreRating")
-    # if score not in SCORES:
-    #     return render_template("error.html", error_message="You must enter a score")
-    with closing(conn.cursor()) as c:
-        query = f"INSERT into games(image_filename, image_caption, game_name, console, release_year, game_description,developer, score_rating) VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
-        c.execute(query, (image_file, image_caption, game_name, console, release_year, game_description, game_developer,score))
-        conn.commit()
-    return redirect("/collection")
+    if request.method == "POST":
+        if request.files:
+            image_file = request.files['image_file']
+            image_file.save(os.path.join(app.config['UPLOAD_PATH'], image_file.filename))
+            image_filename = image_file.filename
+        with closing(conn.cursor()) as c:
+            query = f"INSERT into games(image_filename, image_caption, game_name, console, release_year, game_description,developer, score_rating) VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
+            c.execute(query, (image_filename, image_caption, game_name, console, release_year, game_description, game_developer,score))
+            conn.commit()
+        return redirect("/collection")
 
 @app.route("/collection")
 @flask_login.login_required

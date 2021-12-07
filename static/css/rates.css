@@ -3,9 +3,6 @@
     font-size: 0;
     
 }
-/* #ratestars div{
-    display: inline-block;
-} */
 
 .rates-green{
     filter: brightness(0) saturate(100%) invert(71%) sepia(9%) saturate(3745%) hue-rotate(67deg) brightness(90%) contrast(94%);

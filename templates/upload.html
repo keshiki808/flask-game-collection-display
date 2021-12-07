@@ -6,7 +6,7 @@
 <h1>Upload a new game</h1>
 <div class="col-md-7">
 
-<form id ="collection-item-submission" action="/submitted" method="post">
+<form id ="collection-item-submission" action="/submitted" method="post" enctype="multipart/form-data">
 
     {{form.hidden_tag()}}
     {{form.game_name.label(class="form-label")}}
