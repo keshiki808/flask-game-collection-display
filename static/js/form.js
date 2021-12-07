@@ -1,6 +1,4 @@
 $(document).ready(() => {
-  console.log($('#game_developer').val().trim());
-  console.log($('#game_developer'));
   $('#collection-item-submission').submit((e) => {
     const gameName = $('#game_name').val().trim();
     const gameDeveloper = $('#game_developer').val().trim();
@@ -11,8 +9,7 @@ $(document).ready(() => {
     const imageFile = $('#image_file').val().trim();
     const consoleResponse = $('#console').val().trim();
 
-    console.log(gameDeveloper);
-    console.log($('#game_developer'));
+
 
     let valid = true;
     if (gameName === '') {

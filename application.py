@@ -1,11 +1,12 @@
 import sqlite3
 from contextlib import closing
-from flask import Flask, render_template, redirect, request, abort, session
+from flask import Flask, render_template, redirect, request, abort, session, flash, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, FileField, PasswordField
 from wtforms.validators import DataRequired
 from flask_session import Session
 import flask_login
+
 
 import os
 
@@ -23,7 +24,11 @@ login_manager = flask_login.LoginManager()
 
 login_manager.init_app(app)
 
-users = {'ericstock@gmail.com': {'password': 'terminator2fan'}}
+login_manager.login_view = 'login'
+
+users = {'test': {'password': '123'}}
+
+
 
 class User(flask_login.UserMixin):
     pass
@@ -43,30 +48,33 @@ def request_loader(request):
     email = request.form.get('email')
     if email not in users:
         return
-
     user = User()
     user.id = email
     return user
 
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    form = LoginForm()
     if request.method == 'GET':
-        return '''
-               <form action='login' method='POST'>
-                <input type='text' name='email' id='email' placeholder='email'/>
-                <input type='password' name='password' id='password' placeholder='password'/>
-                <input type='submit' name='submit'/>
-               </form>
-               '''
-
+        return render_template('login.html', form=form)
     email = request.form['email']
-    if request.form['password'] == users[email]['password']:
-        user = User()
-        user.id = email
-        flask_login.login_user(user)
-        return redirect("/upload")
+    if email in users:
+        if request.form['password'] == users[email]['password']:
+            user = User()
+            user.id = email
+            flask_login.login_user(user)
+            flash('Login successful. Welcome to the game display web app!', 'success')
+            return redirect(url_for('index'))
+    else:
+        flash('Login Unsuccessful. Please try logging in again', 'danger')
+    return render_template('login.html', form=form)
 
-    return 'Bad login'
+# @app.route('/home', methods=['GET', 'POST'])
+# @flask_login.login_required
+# def home():
+#     return render_template('home.html')
 
 
 @app.route('/protected')
@@ -75,13 +83,15 @@ def protected():
     return 'Logged in as: ' + flask_login.current_user.id
 
 @app.route('/logout')
+@flask_login.login_required
 def logout():
-    flask_login.logout_user()
-    return 'Logged out'
+    if flask_login.current_user.is_authenticated:
+        flask_login.logout_user()
+    return render_template('logout.html')
 
-@login_manager.unauthorized_handler
-def unauthorized_handler():
-    return 'Unauthorized'
+# @login_manager.unauthorized_handler
+# def unauthorized_handler():
+#     return 'Unauthorized'
 
 
 class GameForm(FlaskForm):
@@ -97,7 +107,7 @@ class GameForm(FlaskForm):
 class LoginForm(FlaskForm):
     email = StringField('Email:')
     password = PasswordField('Password:')
-    submit = SubmitField('Login:')
+    submit = SubmitField('Login')
 
 
     # game_name = StringField("Enter the game name:", validators=[DataRequired()],  render_kw={'style': 'width: 100%'})
@@ -110,10 +120,15 @@ class LoginForm(FlaskForm):
     # submit = SubmitField("Submit")
 
 
+# @app.route("/")
+# def index():
+#     if not session.get("name"):
+#         return redirect("/login")
+#     return render_template("index.html")
+
 @app.route("/")
+@flask_login.login_required
 def index():
-    if not session.get("name"):
-        return redirect("/login")
     return render_template("index.html")
 
 # @app.route("/login", methods=["GET","POST"])

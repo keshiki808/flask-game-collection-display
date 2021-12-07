@@ -1,12 +1,14 @@
 {% extends "layout.html" %}
 
 {% block body %}
-
-Hello, this is the index
-    {% if session.name %}
-        You are logged in as {{ session.name }}. <a href="/logout"> Log out </a>
-    {% else %}
-        You are not logged in. <a href="/login"> Log in </a>
-    {% endif %}
+        <div class = "text-center">
+        <main role="main" class="inner cover ">
+                <h1 class="cover-heading">Welcome to the Flask game display WebApp.</h1>
+                <p class="lead"></p>
+                <p class="lead">
+                  <a href="/logout" class="btn btn-lg btn-secondary">Log out</a>
+                </p>
+        </div>
+        </main>
 
 {% endblock %}
