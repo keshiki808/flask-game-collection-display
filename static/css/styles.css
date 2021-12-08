@@ -1,16 +1,24 @@
-#collection-item-submission span{
-    color:red
+#collection-item-submission span {
+    color:red;
 }
 
-#login-form span{
-    color:red
+#login-form span {
+    color:red;
 }
 
 .error {
-    color: red
+    color: red;
 }
 
 .success {
-    color: green
+    color: green;
 }
 
+#webapp-back {
+     background-image:url("/static/images/arcadeback.jpg")
+}
+
+.text-border-pink {
+background-color: pink;
+border-radius: 25px;
+}
