@@ -18,7 +18,42 @@
      background-image:url("/static/images/arcadeback.jpg")
 }
 
-.text-border-pink {
-background-color: pink;
-border-radius: 25px;
+
+.text-font-lightblue{
+color: #aaccff;
 }
+
+.bar-blue{
+background-color: #222233;
+}
+
+.center-div-container{
+background-color: #222233;
+text-align: center;
+margin-top: 25px;
+margin-bottom: 25px;
+border-radius: 25px;
+padding: 10px;
+}
+
+.spacer{
+margin-top: 25px;
+margin-bottom: 25px;
+}
+
+.left-div-container{
+background-color: #222233;
+margin-top: 25px;
+margin-bottom: 25px;
+border-radius: 25px;
+padding: 12px;
+}
+
+
+
+div.alert-message.alert-message{
+color: red;
+background-color: #222233;
+margin-top: 12px;
+}
+

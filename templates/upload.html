@@ -3,10 +3,14 @@
 <link rel="stylesheet" href="static/css/rates.css">
 {% endblock stylesheet %}
 {% block body %}
-<h1>Upload a new game</h1>
+
+<div class="center-div-container">
+<h1 class="text-font-lightblue">Upload a new game</h1>
+</div>
 <div class="col-md-7">
 
-<form id ="collection-item-submission" action="/submitted" method="post" enctype="multipart/form-data">
+<form id ="collection-item-submission"  class="text-font-lightblue" action="/submitted" method="post" enctype="multipart/form-data">
+    <div class="left-div-container">
 
     {{form.hidden_tag()}}
     {{form.game_name.label(class="form-label")}}
@@ -34,10 +38,12 @@
     <div class="form-label">Choose a score rating:</div>
     <div id="score"></div>
     <span id="sr-span">*</span><br>
+        </div>
 
 
     {{form.submit(class="btn btn-secondary")}}
 </form>
+</div>
     </div>
 
 
@@ -58,6 +64,6 @@
             })
     })
 </script>
-<script src="static/js/form.js"></script>
+<!--<script src="static/js/form.js"></script>-->
 {% endblock %}
 
