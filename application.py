@@ -1,20 +1,19 @@
 import imghdr
+import os
 import sqlite3
 from contextlib import closing
-from flask import Flask, render_template, redirect, request, session, flash, url_for
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField, FileField, PasswordField, SelectField
-from flask_wtf.file import FileField, FileAllowed, FileRequired
-from wtforms.validators import Length, DataRequired
-from flask_wtf.csrf import CSRFProtect
-from flask_session import Session
-from werkzeug.utils import secure_filename
+
 import flask_login
-import os
+from flask import Flask, render_template, redirect, request, flash, url_for
+from flask_session import Session
+from flask_wtf import FlaskForm
+from flask_wtf.csrf import CSRFProtect
+from flask_wtf.file import FileField
+from werkzeug.utils import secure_filename
+from wtforms import StringField, SubmitField, IntegerField, PasswordField, SelectField
 
 app = Flask(__name__)
 csrf = CSRFProtect(app)
-
 
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -30,17 +29,18 @@ login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-users = {'test': {'password': '123'}}
+users = {'fakeuser@fakemail.com': {'password': 'gaming123'}}
 
 
 def image_allowed_check(name_of_file):
     if not "." in name_of_file:
         return False
-    extension = name_of_file.rsplit(".",1)[1]
+    extension = name_of_file.rsplit(".", 1)[1]
     if extension.upper() in app.config['ALLOWED_IMAGE_EXTENSIONS']:
         return True
     else:
         return False
+
 
 def validate_image(stream):
     header = stream.read(512)
@@ -49,7 +49,6 @@ def validate_image(stream):
     if not format:
         return None
     return '.' + (format if format != 'jpeg' else 'jpg')
-
 
 
 class User(flask_login.UserMixin):
@@ -107,6 +106,9 @@ def login():
     if request.method == 'GET':
         return render_template('login.html', form=form)
     email = request.form['email']
+    if len(email) > 100 or len(request.form['password']) > 100:
+        error = "Email and Password fields do not accept strings greater than 100 characters in length"
+        return render_template("submitted.html", error=error)
     if email in users:
         if request.form['password'] == users[email]['password']:
             user = User()
@@ -119,12 +121,11 @@ def login():
     return render_template('login.html', form=form)
 
 
-
-
 @app.route('/protected')
 @flask_login.login_required
 def protected():
     return 'Logged in as: ' + flask_login.current_user.id
+
 
 @app.route('/logout')
 @flask_login.login_required
@@ -134,40 +135,41 @@ def logout():
     return render_template('logout.html')
 
 
-
 class GameForm(FlaskForm):
-    game_name = StringField("Enter the game name:", [Length(min=1)])
-    game_developer = StringField("Enter the developer name:" )
+    game_name = StringField("Enter the game name:")
+    game_developer = StringField("Enter the developer name:")
     console = StringField("Enter the console name:")
     release_year = IntegerField("Enter a release year:")
     game_description = StringField("Enter a brief description of the game: ")
-    image_file = FileField("Upload the game cover: ", validators=[
-        FileRequired(),
-        FileAllowed(['jpg', 'png', 'gif', 'jpeg'], 'Only images can be uploaded')
-    ])
+    image_file = FileField("Upload the game cover: ")
     image_caption = StringField("Enter a caption for the image: ")
     submit = SubmitField("Submit")
+
 
 class LoginForm(FlaskForm):
     email = StringField('Email:')
     password = PasswordField('Password:')
     submit = SubmitField('Login')
 
+
 class RemoveForm(FlaskForm):
     game_select = SelectField("Choose a game to remove:")
     submit = SubmitField("Submit")
+
     def __init__(self, *args, **kwargs):
         super(RemoveForm, self).__init__(*args, **kwargs)
         with closing(conn.cursor()) as c:
             query = f"SELECT game_name from games"
             c.execute(query)
             game_names = c.fetchall()
-        self.game_select.choices = [(name["game_name"],name["game_name"]) for name in game_names]
+        self.game_select.choices = [(name["game_name"], name["game_name"]) for name in game_names]
+
 
 @app.route("/")
 @flask_login.login_required
 def index():
     return render_template("index.html")
+
 
 @app.route("/upload")
 @flask_login.login_required
@@ -178,7 +180,8 @@ def upload():
         redirect("/upload")
     return render_template("upload.html", form=form)
 
-@app.route("/submitted", methods=["GET","POST"])
+
+@app.route("/submitted", methods=["GET", "POST"])
 @flask_login.login_required
 def submission():
     game_name = request.form.get("game_name")
@@ -228,9 +231,11 @@ def submission():
             image_filename = image_file.filename
         with closing(conn.cursor()) as c:
             query = f"INSERT into games(image_filename, image_caption, game_name, console, release_year, game_description,developer, score_rating) VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
-            c.execute(query, (image_filename, image_caption, game_name, console, release_year, game_description, game_developer,score))
+            c.execute(query, (
+            image_filename, image_caption, game_name, console, release_year, game_description, game_developer, score))
             conn.commit()
         return redirect("/collection")
+
 
 @app.route("/collection")
 @flask_login.login_required
@@ -240,7 +245,3 @@ def collection():
         c.execute(query)
         game_collection = c.fetchall()
     return render_template("collection.html", game_collection=game_collection)
-
-
-
-

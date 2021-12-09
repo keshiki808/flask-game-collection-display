@@ -1,32 +1,35 @@
 {% extends "layout.html" %}
 
+{% block stylesheet %}
+<title>Collection</title>
+{% endblock stylesheet %}
 {% block body %}
-
-Collection
+<div class="center-div-container text-font-lightblue">
+    <h1>Game Collection</h1>
+    <p>Click on a game picture for lightbox view</p>
+</div>
 {% if game_collection|length > 0%}
 <div class="card-group">
     <div class="row row">
         {% for game in game_collection %}
-        <div class='col'>
+        <div class='col' style="margin-top: 10px;">
             <div class="card h-100" style="width: 28rem;">
                 <a href="static/image_uploads/{{ game['image_filename'] }}"
                    data-lightbox="{{ game['image_filename'] }}"><img
                         src="static/image_uploads/{{ game['image_filename'] }}" class="card-img-top"
                         alt="{{ game['image_caption'] }}"></a>
                 <div class="card-body">
-
                 </div>
-                <ul class="list-group list-group-flush">
-                    <h5 class="card-title">{{ game['game_name'] }}</h5>
-                    <p class="card-text">{{ game['game_description'] }}.</p>
-                    <li class="list-group-item">Developer: {{ game['developer'] }}</li>
-                    <li class="list-group-item">Platform: {{ game['console'] }}</li>
-                    <li class="list-group-item">Release year: {{ game['release_year'] }}</li>
-                    <li class="list-group-item">Rating: {{ game['score_rating'] }}</li>
+                <ul class="list-group list-group-flush  ">
+                    <h5 class="card-title " style="margin-left: 10px; ">{{ game['game_name'] }}</h5>
+                    <p class="card-text" style="margin-left: 10px; min-height: 100px">{{ game['game_description'] }}</p>
+                    <li class="list-group-item"><b>Developer:</b> {{ game['developer'] }}</li>
+                    <li class="list-group-item"><b>Platform:</b> {{ game['console'] }}</li>
+                    <li class="list-group-item"><b>Release year:</b> {{ game['release_year'] }}</li>
+                    <li class="list-group-item"><b>Rating:</b> {{ game['score_rating'] }}/5</li>
                 </ul>
             </div>
         </div>
-
         {% endfor %}
     </div>
 </div>

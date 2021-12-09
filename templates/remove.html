@@ -1,10 +1,12 @@
 {% extends "layout.html" %}
-
+{% block stylesheet %}
+<title>Remove Game</title>
+{% endblock stylesheet %}
 {% block body %}
 <div class="text-center">
     <main role="main" class="inner cover text-font-lightblue center-div-container">
         <h1 class="cover-heading">Remove a game from the collection</h1>
-        <p class="lead">Here you can remove a game from the collection</p>
+        <p class="lead">Here you can remove a game from the collection by selecting one from the dropdown list</p>
         <form id="remove-game-form" action="#" method="post">
             {{form.hidden_tag()}}
             {{form.game_select.label(class="form-label")}}
