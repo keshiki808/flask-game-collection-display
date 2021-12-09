@@ -44,8 +44,12 @@
 ### Built With
 
 
-* [Bootstrap](https://getbootstrap.com)
-* [JQuery](https://jquery.com)
+* [Flask]
+* [Python]
+* [Javascript]
+* [Bootstrap]
+* [JQuery]
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -68,6 +72,10 @@
 <!-- USAGE EXAMPLES -->
 ## Usage
 
+This project demonstrates using the Flask microframework to create a website or webapp that allows generating a 'collection' of something,
+in this instance a game collection, generated from a form submission and file upload. It uses a template and python to dynamically generate
+the HTML markup and webpages. The project utilizes a login system and also allows removal of entries from the collection. The data is stored using
+SQlite.
 ---------------------TO BE COMPLETED-------------
 
 <p align="right">(<a href="#top">back to top</a>)</p>

@@ -1,10 +1,11 @@
+import imghdr
 import sqlite3
 from contextlib import closing
-from flask import Flask, render_template, redirect, request, abort, session, flash, url_for
+from flask import Flask, render_template, redirect, request, session, flash, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField, FileField, PasswordField, SelectField
 from flask_wtf.file import FileField, FileAllowed, FileRequired
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import Length, DataRequired
 from flask_wtf.csrf import CSRFProtect
 from flask_session import Session
 from werkzeug.utils import secure_filename
@@ -14,15 +15,16 @@ import os
 app = Flask(__name__)
 csrf = CSRFProtect(app)
 
+
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
-Session(app)
 app.config['UPLOAD_PATH'] = 'static/image_uploads'
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
 app.config['ALLOWED_IMAGE_EXTENSIONS'] = ["PNG", "JPG", "GIF", "JPEG"]
 conn = sqlite3.connect("games.db", check_same_thread=False)
 conn.row_factory = sqlite3.Row
+Session(app)
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
@@ -39,6 +41,14 @@ def image_allowed_check(name_of_file):
         return True
     else:
         return False
+
+def validate_image(stream):
+    header = stream.read(512)
+    stream.seek(0)
+    format = imghdr.what(None, header)
+    if not format:
+        return None
+    return '.' + (format if format != 'jpeg' else 'jpg')
 
 
 
@@ -127,7 +137,7 @@ def logout():
 
 class GameForm(FlaskForm):
     game_name = StringField("Enter the game name:", [Length(min=1)])
-    game_developer = StringField("Enter the developer name:")
+    game_developer = StringField("Enter the developer name:" )
     console = StringField("Enter the console name:")
     release_year = IntegerField("Enter a release year:")
     game_description = StringField("Enter a brief description of the game: ")
@@ -179,16 +189,38 @@ def submission():
     image_caption = request.form.get("image_caption")
     score = request.form.get("scoreRating")
     if request.method == "POST":
-        if not game_name or not game_developer or not console or not release_year or not image_caption or not score:
+        if not game_name or not game_developer or not console or not release_year or not image_caption or score == 0:
             error = "All fields required"
+            return render_template("submitted.html", error=error)
+        if len(game_developer) > 50:
+            error = "Game developer field must be less than 50 characters"
+            return render_template("submitted.html", error=error)
+        if len(console) > 50:
+            error = "Console length must be less than 50"
+            return render_template("submitted.html", error=error)
+        if int(release_year) > 2100 or int(release_year) < 1950:
+            error = "Invalid release year"
+            return render_template("submitted.html", error=error)
+        if len(game_name) > 50:
+            error = "Game name must be less than 50 characters"
+            return render_template("submitted.html", error=error)
+        if len(game_description) > 200:
+            error = "Game description must be less than 200 characters"
+            return render_template("submitted.html", error=error)
+        if len(image_caption) > 50:
+            error = "Image caption must be less than 50 characters"
             return render_template("submitted.html", error=error)
         if request.files:
             image_file = request.files['image_file']
+            file_ext = os.path.splitext(image_file.filename)[1]
             if image_file.filename == "":
                 error = "Image must have a filename"
                 return render_template("submitted.html", error=error)
             if not image_allowed_check(image_file.filename):
                 error = "Invalid file extensions"
+                return render_template("submitted.html", error=error)
+            if file_ext != validate_image(image_file.stream):
+                error = "Image content is not an image file. Please upload a valid image"
                 return render_template("submitted.html", error=error)
             else:
                 filename = secure_filename(image_file.filename)
