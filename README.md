@@ -59,6 +59,17 @@
 
 <!-- GETTING STARTED -->
 ## Getting Started
+-Install Python if necessary
+-Clone the repo into the folder of your choosing
+-Open the project folder in Pycharm
+-Create a virtual environment
+-Activate virtual environment and run pip install -r requirements.txt to install all project dependencies
+-Using the powershell terminal type '$env:FLASK_APP = "application.py"'
+-Next type 'flask run' to run the local server
+-Click the IP address in the terminal provided by Pycharm to load the project in your web browser
+-Login using the following credentials
+* Email Address: fakeuser@fakemail.com
+* Password: gaming123
 
 ---------------------TO BE COMPLETED-------------
 
