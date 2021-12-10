@@ -44,12 +44,14 @@
 ### Built With
 
 
-* [Flask]
-* [Python]
-* [Javascript]
-* [Bootstrap]
-* [JQuery]
-
+* Flask
+* Python
+* Javascript
+* Bootstrap
+* JQuery
+* HTML
+* CSS
+* SQL
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

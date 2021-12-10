@@ -1,5 +1,4 @@
 /.idea/
 /venv
 games.db-journal
-.env
 /flask_session
